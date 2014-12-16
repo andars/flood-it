@@ -95,7 +95,9 @@ Game.updateHighScore = function() {
     xhr.onload = function() {
         that.highscore = parseInt(this.responseText);
         var high = document.getElementById('highscore');
-        high.innerHTML = "Global High Score: " + that.highscore;
+        if (that.highscore >= 0) {
+            high.innerHTML = "Global High Score: " + that.highscore;
+        }
     }
     xhr.send();
 }
