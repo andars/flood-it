@@ -6,11 +6,13 @@
  */
 var canvas = document.getElementById('floodit_canvas');
 var ctx = canvas.getContext('2d');
+canvas.width = Math.min(window.innerWidth*0.7, window.innerHeight*0.7);
+canvas.height = Math.min(window.innerWidth*0.7, window.innerHeight*0.7);
 
 var Game = {
     board: [],
     dimension: 8,
-    width: 500,
+    width: canvas.width,
     cellSize: 40,
     target: 0,
     MAX_TURNS: 25,
