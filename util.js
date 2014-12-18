@@ -12,6 +12,8 @@ function getColor(code) {
         case 2: return "cyan";
         case 3: return "green";
         case 4: return "blue";
+        case 5: return "orange";
+        case 6: return "purple";
         default: return "black";
     }
 }

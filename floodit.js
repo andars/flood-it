@@ -9,14 +9,18 @@ var ctx = canvas.getContext('2d');
 canvas.width = Math.min(window.innerWidth*0.7, window.innerHeight*0.7);
 canvas.height = Math.min(window.innerWidth*0.7, window.innerHeight*0.7);
 
+
+
 var Game = {
     board: [],
     dimension: 8,
     width: canvas.width,
     cellSize: 40,
     target: 0,
+    lastTarget: 0,
     MAX_TURNS: 25,
-    score: 0,
+    score1: 0,
+    score2: 0,
     highscore: null,
     turn: 0
 }
@@ -32,6 +36,8 @@ Game.initBoard = function() {
             Game.board[row][col] = Math.floor(Math.random()*5); 
         }
     }
+    this.board[0][0] = 5;
+    this.board[this.dimension-1][this.dimension-1] = 6;
     this.target = this.board[0][0];
 }
 
@@ -68,19 +74,46 @@ Game.floodfill = function(replace, r, c) {
 }
 
 Game.checkWin = function() {
+    var c1 = this.board[0][0];
+    var c2 = this.board[this.dimension-1][this.dimension-1];
     for (var row = 0; row<this.dimension; row++) {
         for (var col = 0; col<this.dimension; col++) {
-            if (this.board[row][col] != this.target) {
+            if (this.board[row][col] != c1 && this.board[row][col] != c2) {
                 return false;
             }
         }
     }
     return true;
 }
-Game.advance = function() {
+
+Game.evaluate = function() {
+    var c1 = this.board[0][0];
+    var c2 = this.board[this.dimension-1][this.dimension-1];
+    var count1 = 0;
+    var count2 = 0;
+    for (var row = 0; row<this.dimension; row++) {
+        for (var col = 0; col<this.dimension; col++) {
+            if (this.board[row][col] == c1) {
+                count1++;
+            } else if (this.board[row][col] == c2) {
+                count2++;
+            }
+        }
+    }
+    if (count1 > count2) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+Game.advance = function(win) {
     this.dimension++;
-    this.score++;
     this.turn = 0;
+    if (win == 0) {
+        this.score1++;
+    } else {
+        this.score2++;
+    }
     this.initBoard();
     this.draw();
 }
@@ -108,31 +141,35 @@ Game.updateStatus = function() {
     var score = document.getElementById('score');
     var high = document.getElementById('highscore');
     
-    if (this.failed) {
-        turnCount.innerHTML = "You failed. Refresh to try again";
-        score.innerHTML = "";
-        high.innerHTML = "";
-        return;
-    }
-
-    this.updateHighScore();
-    turnCount.innerHTML = "Move: " + this.turn + "/" + this.MAX_TURNS;
-    score.innerHTML = "Score: " + this.score;
+    turnCount.innerHTML = "Player " + (this.turn%2+1) + "'s turn";
+    score.innerHTML = "Player 1: " + this.score1 + ",     Player 2: " + this.score2;
 }
 Game.move = function(x, y) {
     if (this.failed) return;
 
     var r = y/this.cellSize | 0;
     var c = x/this.cellSize | 0;
-    this.floodfill(this.board[r][c], 0, 0);
-    this.target = this.board[0][0];
+
+    if (this.board[r][c] == this.board[0][0] || this.board[r][c] == this.board[this.dimension-1][this.dimension-1]) {
+        return;
+    }
+    if (this.turn % 2 == 0) {
+        this.floodfill(this.board[r][c], 0, 0);
+        this.target = this.board[0][0];
+        this.floodfill(5, 0, 0);
+        this.lastTarget = this.target;
+        this.target = this.board[this.dimension-1][this.dimension-1];
+    } else {
+        this.floodfill(this.board[r][c], this.dimension-1, this.dimension-1);
+        this.target = this.board[this.dimension-1][this.dimension-1];
+        this.floodfill(6, this.dimension-1, this.dimension-1);
+        this.lastTarget = this.target;
+        this.target = this.board[0][0];
+    }
     this.turn++;
 
-    if (this.turn > this.MAX_TURNS) {
-        this.failed = true;
-    }
     if (this.checkWin()) {
-        this.advance();
+        this.advance(this.evaluate());
     }
     this.updateStatus();
     Game.draw();
