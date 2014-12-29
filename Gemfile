@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+gem 'sinatra'
+gem 'sinatra-flash'
+gem 'thin'
+gem 'sequel'
+gem 'sqlite3'
+gem 'bcrypt'
+gem 'faye-websocket', require: 'faye/websocket'

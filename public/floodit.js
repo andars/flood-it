@@ -89,10 +89,10 @@ Game.updateHighScore = function() {
     var xhr = new XMLHttpRequest();
 
     //should be post
-    xhr.open('GET', '/highscore/'+this.score);
+    xhr.open('GET', '/floodit/highscore/'+this.score);
     xhr.send();
     xhr = new XMLHttpRequest();
-    xhr.open('GET', '/highscore');
+    xhr.open('GET', '/floodit/highscore');
     var that = this;
     xhr.onload = function() {
         that.highscore = parseInt(this.responseText);
@@ -145,3 +145,6 @@ canvas.addEventListener('click', function(e) {
 Game.initBoard();
 Game.updateStatus();
 Game.draw();
+
+
+
